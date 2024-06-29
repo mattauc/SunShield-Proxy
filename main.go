@@ -6,7 +6,6 @@ import (
     "net/http"
     "log"
     "os"
-    "github.com/gin-contrib/secure"
     "github.com/gin-gonic/gin"
 )
 
