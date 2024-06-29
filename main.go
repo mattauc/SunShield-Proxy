@@ -36,7 +36,7 @@ func Weather(c *gin.Context) {
         return
 	}
 
-    c.Header("Access-Control-Allow-Origin", "http://localhost:8080")
+    c.Header("Access-Control-Allow-Origin", "http://209.38.16.199:8080")
     c.String(http.StatusOK, string(body))
 }
 
