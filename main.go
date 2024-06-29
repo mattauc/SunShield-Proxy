@@ -45,12 +45,14 @@ func main() {
     r := gin.Default()
 	//r.Use(secure.TrustProxy(true))
 
-	r.Use(secure.Secure(secure.Options{
-        SSLProxyHeaders: map[string]string{
-            "X-Forwarded-Proto": "https",
-        },
-        // Other options like HSTS, XSS Protection can be configured here
-    }))
+	r.Use(func(c *gin.Context) {
+        // Handle HTTPS detection for proxy servers
+        if c.Request.Header.Get("X-Forwarded-Proto") == "http" {
+            c.Redirect(http.StatusMovedPermanently, "https://"+c.Request.Host+c.Request.RequestURI)
+            return
+        }
+        c.Next()
+    })
     r.POST("/api/weather", Weather)
     //r.Run(":8000")
 	
