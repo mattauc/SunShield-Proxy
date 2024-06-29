@@ -23,6 +23,7 @@ func Weather(c *gin.Context) {
 
 	uri := "https://api.openweathermap.org/data/3.0/onecall?lat=" + lat + "&lon=" + lon + "&exclude=" + exclude + "&units=" + units +"&appid=" + os.Getenv("OPEN_WEATHER_TOKEN")
 	//Get Request to URI
+	fmt.Println("API: ", os.Getenv("OPEN_WEATHER_TOKEN"))
     response, error := http.Get(uri)
     if error != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": error.Error()})
