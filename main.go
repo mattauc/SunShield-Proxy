@@ -4,6 +4,7 @@ import (
 	"fmt"
     "io/ioutil"
     "net/http"
+	"log"
     "os"
 
     "github.com/gin-gonic/gin"
