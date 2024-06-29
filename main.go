@@ -43,7 +43,14 @@ func Weather(c *gin.Context) {
 
 func main() {
     r := gin.Default()
-	r.Use(secure.TrustProxy(true))
+	//r.Use(secure.TrustProxy(true))
+
+	r.Use(secure.Secure(secure.Options{
+        SSLProxyHeaders: map[string]string{
+            "X-Forwarded-Proto": "https",
+        },
+        // Other options like HSTS, XSS Protection can be configured here
+    }))
     r.POST("/api/weather", Weather)
     //r.Run(":8000")
 	
