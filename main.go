@@ -36,7 +36,7 @@ func Weather(c *gin.Context) {
         return
 	}
 
-    c.Header("Access-Control-Allow-Origin", "http://209.38.16.199:8080")
+    c.Header("Access-Control-Allow-Origin", "https://sunshield.mattauc.com")
     c.String(http.StatusOK, string(body))
 }
 
@@ -44,4 +44,13 @@ func main() {
     r := gin.Default()
     r.POST("/api/weather", Weather)
     r.Run(":8000")
+	
+    certFile := "/etc/letsencrypt/live/sunshield.mattauc.com/fullchain.pem"
+    keyFile := "/etc/letsencrypt/live/sunshield.mattauc.com/privkey.pem"
+
+
+    err := r.RunTLS(":443", certFile, keyFile)
+    if err != nil {
+        log.Fatalf("Failed to run server with TLS: %v", err)
+    }
 }
