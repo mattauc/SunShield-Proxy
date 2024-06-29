@@ -42,28 +42,7 @@ func Weather(c *gin.Context) {
 
 func main() {
     r := gin.Default()
-	//r.Use(secure.TrustProxy(true))
-
-	r.Use(func(c *gin.Context) {
-        // Handle HTTPS detection for proxy servers
-        if c.Request.Header.Get("X-Forwarded-Proto") == "http" {
-            c.Redirect(http.StatusMovedPermanently, "https://"+c.Request.Host+c.Request.RequestURI)
-            return
-        }
-        // Set secure headers
-        c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
-        c.Header("X-Frame-Options", "DENY")
-        c.Header("X-Content-Type-Options", "nosniff")
-        c.Header("Referrer-Policy", "same-origin")
-
-        // Set CORS headers
-        c.Header("Access-Control-Allow-Origin", "https://sunshield.mattauc.com")
-
-        c.Next()
-    })
-	
     r.POST("/api/weather", Weather)
-    //r.Run(":8000")
 	
     certFile := "/etc/letsencrypt/live/sunshield.mattauc.com/fullchain.pem"
     keyFile := "/etc/letsencrypt/live/sunshield.mattauc.com/privkey.pem"
