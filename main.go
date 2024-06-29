@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
+    "fmt"
     "io/ioutil"
     "net/http"
-	"log"
+    "log"
     "os"
-
+    "github.com/gin-contrib/secure"
     "github.com/gin-gonic/gin"
 )
 
@@ -43,6 +43,7 @@ func Weather(c *gin.Context) {
 
 func main() {
     r := gin.Default()
+	r.Use(secure.TrustProxy(true))
     r.POST("/api/weather", Weather)
     //r.Run(":8000")
 	
