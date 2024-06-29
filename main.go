@@ -44,7 +44,7 @@ func Weather(c *gin.Context) {
 func main() {
     r := gin.Default()
     r.POST("/api/weather", Weather)
-    r.Run(":8000")
+    //r.Run(":8000")
 	
     certFile := "/etc/letsencrypt/live/sunshield.mattauc.com/fullchain.pem"
     keyFile := "/etc/letsencrypt/live/sunshield.mattauc.com/privkey.pem"
