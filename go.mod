@@ -1,6 +1,6 @@
 module apikeys
 
-go 1.18
+go 1.22
 
 require (
 	github.com/bytedance/sonic v1.11.6 // indirect
