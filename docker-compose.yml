@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    environment:
+      OPEN_WEATHER_TOKEN: ${OPEN_WEATHER_TOKEN}
