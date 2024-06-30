@@ -6,10 +6,41 @@ import (
     "net/http"
     "log"
     "os"
+    "sync"
+    "time"
+
     "github.com/gin-gonic/gin"
+    "github.com/patrickmn/go-cache"
+    "golang.org/x/time/rate"
 )
 
+var (
+    rateLimiters = make(map[string]*rate.Limiter)
+    cacheStore   = cache.New(30*time.Minute, 10*time.Minute)
+    mu           sync.Mutex
+)
+
+func getRateLimiter(ip string) *rate.Limiter {
+    mu.Lock()
+    defer mu.Unlock()
+
+    limiter, exists := rateLimiters[ip]
+    if !exists {
+        limiter = rate.NewLimiter(1, 1)
+        rateLimiters[ip] = limiter
+    }
+    return limiter
+}
+
 func Weather(c *gin.Context) {
+
+    ip := c.ClientIP()
+    limiter := getRateLimiter(ip)
+
+    if !limiter.Allow() {
+        c.JSON(http.StatusTooManyRequests, gin.H{"error": "Too many requests"})
+        return
+    }
 
 	lat := c.Query("lat")
     lon := c.Query("lon")
@@ -20,13 +51,19 @@ func Weather(c *gin.Context) {
     fmt.Println("Longitude:", lon)
 	fmt.Println("Exclude:", exclude)
 	fmt.Println("Units:", units)
+    cacheKey := fmt.Sprintf("%s:%s:%s:%s", lat, lon, exclude, units)
 
-	uri := "https://api.openweathermap.org/data/3.0/onecall?lat=" + lat + "&lon=" + lon + "&exclude=" + exclude + "&units=" + units +"&appid=" + os.Getenv("OPEN_WEATHER_TOKEN")
-	//Get Request to URI
-	fmt.Println("API: ", os.Getenv("OPEN_WEATHER_TOKEN"))
-    response, error := http.Get(uri)
-    if error != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": error.Error()})
+    if cachedData, found := cacheStore.Get(cacheKey); found {
+        c.Header("Access-Control-Allow-Origin", "https://sunshield.mattauc.com")
+        c.String(http.StatusOK, cachedData.(string))
+        return
+    }
+
+	uri := fmt.Sprintf("https://api.openweathermap.org/data/3.0/onecall?lat=%s&lon=%s&exclude=%s&units=%s&appid=%s", lat, lon, exclude, units, os.Getenv("OPEN_WEATHER_TOKEN"))
+    response, err := http.Get(uri)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
     }
     defer response.Body.Close()
 
@@ -37,6 +74,7 @@ func Weather(c *gin.Context) {
         return
 	}
 
+    cacheStore.Set(cacheKey, string(body), cache.DefaultExpiration)
     c.Header("Access-Control-Allow-Origin", "https://sunshield.mattauc.com")
     c.String(http.StatusOK, string(body))
 }
