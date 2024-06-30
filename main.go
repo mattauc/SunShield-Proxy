@@ -71,12 +71,16 @@ func Weather(c *gin.Context) {
 
     cacheKey := fmt.Sprintf("%f:%f:%s:%s", lat, lon, exclude, units)
 
+    fmt.Println("CACHE KEY: ", cacheKey)
+
     if cachedData, found := cacheStore.Get(cacheKey); found {
+        fmt.Println("CACHING")
         c.Header("Access-Control-Allow-Origin", "https://sunshield.mattauc.com")
         c.String(http.StatusOK, cachedData.(string))
         return
     }
 
+    fmt.Println("NOT CACHING")
 	uri := fmt.Sprintf("https://api.openweathermap.org/data/3.0/onecall?lat=%s&lon=%s&exclude=%s&units=%s&appid=%s", lat, lon, exclude, units, os.Getenv("OPEN_WEATHER_TOKEN"))
     response, err := http.Get(uri)
     if err != nil {
