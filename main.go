@@ -32,6 +32,11 @@ func getRateLimiter(ip string) *rate.Limiter {
     return limiter
 }
 
+func roundToDecimalPlaces(value float64, decimalPlaces int) float64 {
+    factor := math.Pow(10, float64(decimalPlaces))
+    return math.Round(value*factor) / factor
+}
+
 func Weather(c *gin.Context) {
 
     ip := c.ClientIP()
@@ -42,16 +47,27 @@ func Weather(c *gin.Context) {
         return
     }
 
-	lat := c.Query("lat")
-    lon := c.Query("lon")
-	exclude := c.Query("exclude")
-	units := c.Query("units")
-    
-    fmt.Println("Latitude:", lat)
-    fmt.Println("Longitude:", lon)
-	fmt.Println("Exclude:", exclude)
-	fmt.Println("Units:", units)
-    cacheKey := fmt.Sprintf("%s:%s:%s:%s", lat, lon, exclude, units)
+	latStr := c.Query("lat")
+    lonStr := c.Query("lon")
+    exclude := c.Query("exclude")
+    units := c.Query("units")
+
+    lat, err := strconv.ParseFloat(latStr, 64)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid latitude"})
+        return
+    }
+
+    lon, err := strconv.ParseFloat(lonStr, 64)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid longitude"})
+        return
+    }
+
+    lat = roundToDecimalPlaces(lat, 3)
+    lon = roundToDecimalPlaces(lon, 3)
+
+    cacheKey := fmt.Sprintf("%f:%f:%s:%s", lat, lon, exclude, units)
 
     if cachedData, found := cacheStore.Get(cacheKey); found {
         c.Header("Access-Control-Allow-Origin", "https://sunshield.mattauc.com")
