@@ -96,6 +96,8 @@ func Weather(c *gin.Context) {
         return
 	}
 
+    fmt.Println(string(body))
+
     cacheStore.Set(cacheKey, string(body), cache.DefaultExpiration)
     c.Header("Access-Control-Allow-Origin", "https://sunshield.mattauc.com")
     c.String(http.StatusOK, string(body))
