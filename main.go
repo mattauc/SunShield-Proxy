@@ -81,8 +81,7 @@ func Weather(c *gin.Context) {
     }
 
     fmt.Println("NOT CACHING")
-	//uri := fmt.Sprintf("https://api.openweathermap.org/data/3.0/onecall?lat=%s&lon=%s&exclude=%s&units=%s&appid=%s", latStr, lonStr, exclude, units, os.Getenv("OPEN_WEATHER_TOKEN"))
-    uri := "https://api.openweathermap.org/data/3.0/onecall?lat=-33.926530492173406&lon=151.25599730755016&exclude=minutely,alerts&units=metric&appid=525ccad372318b79140c5e40030e620d"
+	uri := fmt.Sprintf("https://api.openweathermap.org/data/3.0/onecall?lat=%s&lon=%s&exclude=%s&units=%s&appid=%s", latStr, lonStr, exclude, units, os.Getenv("OPEN_WEATHER_TOKEN"))
     response, err := http.Get(uri)
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
